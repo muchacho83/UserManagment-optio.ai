@@ -1,0 +1,32 @@
+<section *ngIf="data.userEmail" class="delete-section">
+  <h3>
+    Delete the user <b>{{ data.userEmail }}? </b>
+  </h3>
+  <form action="">
+    <div>
+      <button (click)="dialogRef.close()" mat-raised-button mat-dialog-close="">
+        close
+      </button>
+    </div>
+    <div>
+      <button (click)="closeDialog()" mat-raised-button mat-dialog-close="">
+        Confirm
+      </button>
+    </div>
+  </form>
+</section>
+<section *ngIf="data.message" class="message-section">
+  <div *ngIf="data.message.success">
+    <h1 style="color:green">{{ data.message.success }}</h1>
+    <mat-icon color="primary">check_circle</mat-icon>
+
+  </div>
+  <div *ngIf="data.message.error">
+    <h1 >{{ data.message.error }}</h1>
+    <mat-icon>error_outline</mat-icon>
+
+  </div>
+</section>
+<section *ngIf="error" class="error-section">
+  {{ this.error }}
+</section>

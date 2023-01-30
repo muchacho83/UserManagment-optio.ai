@@ -1,0 +1,239 @@
+<mat-drawer-container>
+  <!-- sidenav Content ---------------------------------------------->
+
+  
+  <mat-drawer #drawer mode="side" position="end">
+    <!-- X button -->
+    <mat-icon (click)="drawer.close()" class="drawer-close-icon"
+      >close</mat-icon
+    >
+    <!--  -->
+
+    <!-- Form for edit and add functionality START -------->
+
+    <!-- First Name input field -->
+    <form action="" class="side-form" [formGroup]="drawerForm">
+      <mat-form-field>
+        <mat-label>First Name</mat-label>
+        <input type="text" matInput formControlName="firstName" />
+      </mat-form-field>
+      <!--  -->
+
+      <!-- Last Name input field -->
+      <mat-form-field>
+        <mat-label>Last Name</mat-label>
+        <input type="text" matInput formControlName="lastName" />
+      </mat-form-field>
+      <!--  -->
+
+      <!-- email and status wrapper ------------>
+      <div class="double-input-wrapper">
+
+          <!-- Email input field -->
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input
+            type="email"
+            matInput
+            formControlName="email"
+            style="font-size: 15px"
+          />
+          <mat-error *ngIf="drawerForm.get('email')?.hasError('exists')">{{
+            "The user already exists"
+          }}</mat-error>
+          <mat-error *ngIf="drawerForm.get('email')?.hasError('email')">{{
+            "Please enter a valid email"
+          }}</mat-error>
+        </mat-form-field>
+
+        <!-- Status input field -->
+        <mat-form-field>
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="locked">
+            <mat-option value="Active">Active</mat-option>
+            <mat-option value="Inactive">Inactive</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <!-- Email and status Wrapper END --------------->
+
+      <!-- Roles Input Field -->
+      <mat-form-field appearance="fill">
+        <mat-label>Roles</mat-label>
+        <mat-select multiple formControlName="roles" #rolesSelection>
+          <mat-select-trigger>
+            <!-- stop propagation used to prevent select from extending while pressing the button inside it -->
+            <button
+              *ngFor="let value of drawerForm.get('roles')?.value"
+              type="button"
+              mat-fab
+              extended
+              color="primary"
+              style="font-size: 12px"
+              
+              (click)="removeRoleSelection(value); $event.stopPropagation()" 
+            >
+              {{ value }}
+              <mat-icon matSuffix>close</mat-icon>
+            </button>
+          </mat-select-trigger>
+
+          <mat-option *ngFor="let role of roles" [value]="role.name">{{
+            role.name
+          }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <!-- --- -->
+
+      <mat-divider> </mat-divider>
+
+      <!-- Cancel and Save Buttons -->
+      <div class="sidenav-content-buttons">
+        <button mat-raised-button type="button" (click)="drawer.close()">
+          Cancel
+        </button>
+        <!-- on click event checking if the add or editing functionality should be invoked -->
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="!drawerForm.valid"
+          (click)="editing ? saveEdit() : addUser()"
+          
+        >
+          Save
+        </button>
+      </div>
+      <!--  -->
+    </form>
+    <!-- Form for edit and add functionality END ---------->
+  </mat-drawer>
+
+  <!-- Sidenav Content End ---------------------------------------->
+
+  <!-- ----------------------- -->
+
+  <!-- Main Content ------------------------------------------------>
+  <mat-drawer-content>
+    <div class="heading">
+      <h1>Users</h1>
+    </div>
+
+    <section class="main-section mat-elevation-z8">
+      <!-- filter and add Button container Start -->
+      <div class="filter-container">
+        <mat-form-field appearance="outline">
+          <input
+            type="text"
+            matInput
+            [formControl]="searchControl"
+            placeholder="Search Users"
+          />
+          <mat-icon matPrefix color="">search</mat-icon>
+        </mat-form-field>
+        <div class="add-icon-container">
+          <mat-icon color="primary" (click)="openAddForm()">add</mat-icon>
+          <span>Add</span>
+        </div>
+      </div>
+      <!--   filter and add Button container End ------------>
+
+      <!-- Table Start ------------->
+      <div class="table-container">
+        <mat-paginator
+          [pageSizeOptions]="[5, 10, 20]"
+          showFirstLastButtons=""
+        ></mat-paginator>
+        <table
+          mat-table
+          [dataSource]="dataSource"
+          matSort
+          (matSortChange)="sort()"
+        >
+          <!-- Picture Column -->
+          <ng-container matColumnDef="Picture">
+            <th mat-header-cell *matHeaderCellDef>Picture</th>
+            <td mat-cell *matCellDef="let element"></td>
+          </ng-container>
+
+          <!--email Column -->
+          <ng-container matColumnDef="Email">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="email">
+              Email
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              (click)="edit(element); drawer.open()"
+            >
+              {{ element.email }}
+            </td>
+          </ng-container>
+
+          <!-- First Name Column -->
+          <ng-container matColumnDef="First Name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="firstName">
+              First Name
+            </th>
+            <td mat-cell *matCellDef="let element">{{ element.firstName }}</td>
+          </ng-container>
+
+          <!-- Last Name Column -->
+          <ng-container matColumnDef="Last Name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="lastName">
+              Last Name
+            </th>
+            <td mat-cell *matCellDef="let element">{{ element.lastName }}</td>
+          </ng-container>
+
+          <!-- Roles Column  -->
+          <ng-container matColumnDef="Roles">
+            <th mat-header-cell *matHeaderCellDef>Roles</th>
+            <td mat-cell *matCellDef="let element" class="roles-cell">
+              {{ element.roles }}
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="Status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="locked">
+              Status
+            </th>
+            <td mat-cell *matCellDef="let element">
+              <p
+                [ngStyle]="{
+                  'background-color': element.locked
+                    ? 'red'
+                    : 'hsl(142deg 70% 30%)',
+                  color: 'white',
+                  'border-radius': '8px',
+                  'text-align': 'center',
+                  padding: '2px',
+                  width: '50px'
+                }"
+              >
+                {{ element.locked ? "Inactive" : "Active" }}
+              </p>
+            </td>
+          </ng-container>
+
+          <!-- Delete Column -->
+          <ng-container matColumnDef="Delete">
+            <th mat-header-cell *matHeaderCellDef=""></th>
+            <td mat-cell *matCellDef="let element">
+              <mat-icon
+                color="warn"
+                (click)="onDeleteDialog(element.email, element.id)"
+                >delete</mat-icon
+              >
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+      <!-- Table End -------------->
+    </section>
+  </mat-drawer-content>
+  <!-- Main Content END ------------------------------------------------>
+</mat-drawer-container>
