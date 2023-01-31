@@ -27,7 +27,6 @@ export class UserManagmentComponent implements OnInit {
   @ViewChild(MatSort) matSort!: MatSort;
   @ViewChild('drawer') drawer!: MatDrawer;
 
-  editing = false; // used for controlling if add or editing functions should be invoked
 
   roles!: Roles[];
 
@@ -111,7 +110,7 @@ export class UserManagmentComponent implements OnInit {
     this.drawerForm.get('email')?.clearAsyncValidators(); // removing all async validators since there is no need to check anything on the server side
     this.drawerForm.markAllAsTouched(); // mark all controls as Touched to control if some of the properties are missing
 
-    this.editing = true;
+    // this.editing = true;
     this.drawerForm.patchValue({
       id: element.id,
       firstName: element.firstName,
@@ -122,32 +121,7 @@ export class UserManagmentComponent implements OnInit {
     });
   }
 
-  //invoked if the save button is hit on the sidenav
-  saveEdit() {
-    this.userService
-      .updateUser(
-        <UserEntities>(<unknown>this.drawerForm?.value),
-        // controlling if the user should be marked as active or not, since value of theformcontrol type of string.
-        this.drawerForm.get('locked')?.value === 'Inactive' ? true : false
-      )
-      .subscribe({
-        next: () => this.loadDataSource(),
-        complete: () => {
-          this.openDialog(undefined, undefined, {
-            success: 'Successfully Saved',
-          });
-        },
-        error: () => {
-          this.openDialog(undefined, undefined, {
-            error: 'Sorry, something went wrong',
-          });
-        },
-      });
-
-    //resetting the form
-    this.drawerForm.reset();
-    this.drawer.close();
-  }
+ 
   openAddForm() {
     this.drawerForm.reset();
     this.drawer.open();

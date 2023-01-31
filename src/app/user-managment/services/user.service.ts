@@ -63,10 +63,7 @@ export class UserService {
       )
       .pipe(map((item) => item.data.entities));
   }
-  updateUser(user: UserEntities, locked: boolean) {
-    user.locked = locked;
-    return this.http.post(`${this.dbUrl}/save`, user, { headers: this.header });
-  }
+  
   deleteUser(id: string) {
     return this.http.post(
       `${this.dbUrl}/remove`,
